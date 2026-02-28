@@ -17,10 +17,9 @@ export default function Premium({ profile, onRefresh }: Props) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const username = profile?.username || (typeof window !== 'undefined' ? window?.Telegram?.WebApp?.initDataUnsafe?.user?.username : '') || ''
-
   async function handleBuy() {
     if (!selected) return setError('Выберите план')
+    const username = profile?.username
     if (!username) return setError('Username не найден')
     setLoading(true); setError(''); setSuccess('')
     try {
@@ -70,8 +69,7 @@ export default function Premium({ profile, onRefresh }: Props) {
                 <div style={{
                   width: 40, height: 40, borderRadius: 12,
                   background: `${p.color}18`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 20,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
                 }}>💎</div>
                 <div style={{ textAlign: 'left' }}>
                   <p style={{ fontWeight: 800, fontSize: 15, color: active ? p.color : '#f0f0f8' }}>{p.label}</p>
