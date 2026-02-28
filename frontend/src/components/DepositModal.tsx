@@ -2,12 +2,11 @@
 import { useState, useEffect } from 'react'
 import { createDeposit } from '@/lib/api'
 
-interface DepositModalProps {
-  onClose: () => void
-  onSuccess: () => void
-}
+interface Props { onClose: () => void; onSuccess: () => void }
 
-export default function DepositModal({ onClose, onSuccess }: DepositModalProps) {
+const QUICK = [5000, 10000, 25000, 50000]
+
+export default function DepositModal({ onClose, onSuccess }: Props) {
   const [amount, setAmount] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -21,17 +20,13 @@ export default function DepositModal({ onClose, onSuccess }: DepositModalProps) 
     }
   }, [countdown])
 
-  const formatCountdown = (s: number) => {
-    const m = Math.floor(s / 60).toString().padStart(2, '0')
-    const sec = (s % 60).toString().padStart(2, '0')
-    return `${m}:${sec}`
-  }
+  const fmt = (s: number) =>
+    `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`
 
   async function handleDeposit() {
     const val = parseFloat(amount)
     if (!val || val < 3000) return setError('Минимальная сумма: 3 000 ₽')
-    setLoading(true)
-    setError('')
+    setLoading(true); setError('')
     try {
       const data = await createDeposit(val)
       setPaymentUrl(data.payment_url)
@@ -39,75 +34,87 @@ export default function DepositModal({ onClose, onSuccess }: DepositModalProps) 
       window.Telegram?.WebApp?.openLink(data.payment_url)
     } catch (e: any) {
       setError(e?.response?.data?.detail || 'Ошибка при создании платежа')
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-end" onClick={onClose}>
-      <div
-        className="w-full bg-[var(--tg-theme-bg-color)] rounded-t-2xl p-6 pb-10 space-y-4"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="flex justify-between items-center">
-          <h3 className="text-xl font-bold">💳 Пополнение</h3>
-          <button onClick={onClose} className="text-[var(--tg-theme-hint-color)] text-xl">✕</button>
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, zIndex: 100,
+      background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
+      display: 'flex', alignItems: 'flex-end',
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        width: '100%', borderRadius: '24px 24px 0 0',
+        background: '#13131a',
+        border: '1px solid rgba(255,60,172,0.15)',
+        borderBottom: 'none', padding: '20px 20px 32px',
+      }}>
+        {/* Handle */}
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 20px' }} />
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <p style={{ fontSize: 20, fontWeight: 900 }}>💳 Пополнение</p>
+          <button onClick={onClose} style={{
+            background: 'rgba(255,255,255,0.08)', border: 'none',
+            borderRadius: 10, width: 32, height: 32,
+            color: '#6060a0', fontSize: 16, cursor: 'pointer',
+          }}>✕</button>
         </div>
 
         {!paymentUrl ? (
           <>
-            <div>
-              <p className="section-title">Сумма (минимум 3 000 ₽)</p>
-              <input
-                type="number"
-                value={amount}
-                onChange={e => setAmount(e.target.value)}
-                placeholder="Введите сумму"
-                className="w-full bg-[var(--tg-theme-secondary-bg-color)] rounded-xl px-4 py-3 text-white placeholder-[var(--tg-theme-hint-color)] outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color)] text-lg"
-                min={3000}
-              />
-            </div>
+            <p className="label">Сумма (мин. 3 000 ₽)</p>
+            <input
+              type="number" value={amount}
+              onChange={e => setAmount(e.target.value)}
+              placeholder="0 ₽"
+              className="input" min={3000}
+              style={{ marginBottom: 12, fontSize: 20, fontWeight: 900 }}
+            />
 
-            {/* Quick amounts */}
-            <div className="grid grid-cols-4 gap-2">
-              {[5000, 10000, 25000, 50000].map(v => (
-                <button
-                  key={v}
-                  onClick={() => setAmount(String(v))}
-                  className="card text-center text-sm font-medium py-2 active:opacity-70"
-                >
-                  {v.toLocaleString()}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 20 }}>
+              {QUICK.map(v => (
+                <button key={v} onClick={() => setAmount(String(v))} style={{
+                  background: amount === String(v) ? 'rgba(255,60,172,0.15)' : 'var(--bg3)',
+                  border: amount === String(v) ? '1.5px solid #ff3cac' : '1px solid var(--border)',
+                  borderRadius: 12, padding: '10px 4px', cursor: 'pointer',
+                  fontSize: 13, fontWeight: 800,
+                  color: amount === String(v) ? '#ff3cac' : '#c0c0e0',
+                  transition: 'all 0.15s',
+                }}>
+                  {(v/1000).toFixed(0)}k
                 </button>
               ))}
             </div>
 
-            {error && <p className="text-red-400 text-sm">{error}</p>}
+            {error && <p style={{ color: '#ff6b6b', fontSize: 13, fontWeight: 700, marginBottom: 12 }}>{error}</p>}
 
             <button onClick={handleDeposit} disabled={loading} className="btn-primary">
-              {loading ? 'Создание платежа...' : 'Перейти к оплате'}
+              {loading ? '⏳ Создание...' : '🚀 Перейти к оплате'}
             </button>
           </>
         ) : (
-          <div className="space-y-4 text-center">
-            <div className="text-5xl">⏱</div>
-            <p className="text-2xl font-bold text-[var(--tg-theme-button-color)]">
-              {formatCountdown(countdown)}
+          <div style={{ textAlign: 'center', padding: '10px 0' }}>
+            <div style={{
+              width: 80, height: 80, borderRadius: '50%', margin: '0 auto 16px',
+              background: 'linear-gradient(135deg, rgba(255,60,172,0.2), rgba(168,85,247,0.2))',
+              border: '2px solid rgba(255,60,172,0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32,
+            }}>⏱</div>
+            <p style={{ fontSize: 40, fontWeight: 900, color: '#ff3cac', letterSpacing: '-0.02em', marginBottom: 8 }}>
+              {fmt(countdown)}
             </p>
-            <p className="text-[var(--tg-theme-hint-color)] text-sm">
+            <p style={{ color: '#6060a0', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>
               Платёжная страница открыта. После оплаты средства зачислятся автоматически.
             </p>
-            <button
-              onClick={() => window.Telegram?.WebApp?.openLink(paymentUrl)}
-              className="btn-primary"
-            >
-              Открыть страницу оплаты
+            <button onClick={() => window.Telegram?.WebApp?.openLink(paymentUrl)} className="btn-primary" style={{ marginBottom: 12 }}>
+              🔗 Открыть страницу оплаты
             </button>
-            <button
-              onClick={() => { onSuccess(); onClose() }}
-              className="w-full text-[var(--tg-theme-hint-color)] text-sm py-2"
-            >
-              Я уже оплатил
+            <button onClick={() => { onSuccess(); onClose() }} style={{
+              background: 'none', border: 'none', color: '#6060a0',
+              fontSize: 14, fontWeight: 700, cursor: 'pointer', padding: 8,
+            }}>
+              Я уже оплатил ✓
             </button>
           </div>
         )}
