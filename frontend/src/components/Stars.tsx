@@ -3,42 +3,36 @@ import { useState } from 'react'
 import { orderStars } from '@/lib/api'
 
 const PACKAGES = [
-  { stars: 50, price: 5000 },
-  { stars: 100, price: 9500 },
-  { stars: 250, price: 22000 },
-  { stars: 500, price: 43000 },
-  { stars: 1000, price: 85000 },
+  { stars: 50, price: 5000, emoji: '✨' },
+  { stars: 100, price: 9500, emoji: '⭐️' },
+  { stars: 250, price: 22000, emoji: '🌟' },
+  { stars: 500, price: 43000, emoji: '💫' },
+  { stars: 1000, price: 85000, emoji: '🚀', hot: true },
 ]
 
-interface StarsProps {
-  profile: any
-  onRefresh: () => void
-}
+interface Props { profile: any; onRefresh: () => void }
 
-export default function Stars({ profile, onRefresh }: StarsProps) {
+export default function Stars({ profile, onRefresh }: Props) {
   const [selected, setSelected] = useState<number | null>(null)
   const [custom, setCustom] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const username = profile?.username || window?.Telegram?.WebApp?.initDataUnsafe?.user?.username || ''
+  const username = profile?.username || (typeof window !== 'undefined' ? window?.Telegram?.WebApp?.initDataUnsafe?.user?.username : '') || ''
 
   async function handleBuy() {
     const stars = selected ?? (custom ? parseInt(custom) : 0)
     if (!stars || stars < 1) return setError('Выберите количество Stars')
     if (!username) return setError('Username не найден')
-    setLoading(true)
-    setError('')
+    setLoading(true); setError(''); setSuccess('')
     try {
       await orderStars(stars, username)
-      setSuccess(`✅ Заказ на ${stars} Stars создан!`)
+      setSuccess(`🎉 Заказ на ${stars} Stars создан!`)
       onRefresh()
     } catch (e: any) {
       setError(e?.response?.data?.detail || 'Ошибка при заказе')
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
   const selectedStars = selected ?? (custom ? parseInt(custom) || 0 : 0)
@@ -46,63 +40,87 @@ export default function Stars({ profile, onRefresh }: StarsProps) {
     ?? (selectedStars > 0 ? Math.round(selectedStars * 85000 / 1000) : 0)
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="pt-4">
-        <h2 className="text-2xl font-bold">⭐️ Stars</h2>
-        <p className="text-[var(--tg-theme-hint-color)] text-sm mt-1">
-          Баланс: {profile ? `${Number(profile.balance).toLocaleString()} ₽` : '—'}
-        </p>
-      </div>
-
-      <p className="section-title">Выберите пакет</p>
-      <div className="grid grid-cols-3 gap-2">
-        {PACKAGES.map(pkg => (
-          <button
-            key={pkg.stars}
-            onClick={() => { setSelected(pkg.stars); setCustom('') }}
-            className={`card text-center transition-all ${
-              selected === pkg.stars
-                ? 'ring-2 ring-[var(--tg-theme-button-color)]'
-                : 'active:opacity-80'
-            }`}
-          >
-            <p className="text-lg font-bold">{pkg.stars}</p>
-            <p className="text-[10px] text-[var(--tg-theme-hint-color)]">⭐️</p>
-            <p className="text-xs font-semibold mt-1 text-[var(--tg-theme-hint-color)]">
-              {pkg.price.toLocaleString()} ₽
+    <div style={{ padding: '16px 16px 0' }}>
+      {/* Header */}
+      <div className="afu" style={{ paddingTop: 16, marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 46, height: 46, borderRadius: 14, fontSize: 24,
+            background: 'linear-gradient(135deg, #ffe600, #ff9500)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 16px rgba(255,230,0,0.35)',
+          }}>⭐</div>
+          <div>
+            <p style={{ fontSize: 20, fontWeight: 900 }}>Telegram Stars</p>
+            <p style={{ fontSize: 12, color: '#6060a0', fontWeight: 600 }}>
+              Баланс: {profile ? `${Number(profile.balance).toLocaleString()} ₽` : '—'}
             </p>
-          </button>
-        ))}
+          </div>
+        </div>
       </div>
 
-      <div>
-        <p className="section-title">Своё количество</p>
+      {/* Packages */}
+      <p className="label afu2">Выберите пакет</p>
+      <div className="afu2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
+        {PACKAGES.map(pkg => {
+          const active = selected === pkg.stars
+          return (
+            <button key={pkg.stars} onClick={() => { setSelected(pkg.stars); setCustom('') }} style={{
+              background: active ? 'linear-gradient(135deg, rgba(255,230,0,0.15), rgba(255,149,0,0.1))' : 'var(--card)',
+              border: active ? '1.5px solid #ffe600' : '1px solid var(--border)',
+              borderRadius: 16, padding: '12px 6px', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              transition: 'all 0.18s', position: 'relative',
+              boxShadow: active ? '0 4px 16px rgba(255,230,0,0.2)' : 'none',
+            }}>
+              {pkg.hot && (
+                <span style={{
+                  position: 'absolute', top: -8, right: -6,
+                  background: 'linear-gradient(135deg, #ff3cac, #a855f7)',
+                  color: '#fff', fontSize: 9, fontWeight: 800,
+                  padding: '2px 6px', borderRadius: 6,
+                }}>HOT</span>
+              )}
+              <span style={{ fontSize: 20 }}>{pkg.emoji}</span>
+              <span style={{ fontSize: 16, fontWeight: 900, color: active ? '#ffe600' : '#f0f0f8' }}>{pkg.stars}</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#6060a0' }}>{(pkg.price/1000).toFixed(1)}k ₽</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Custom */}
+      <div className="afu3" style={{ marginBottom: 16 }}>
+        <p className="label">Своё количество</p>
         <input
-          type="number"
-          value={custom}
+          type="number" value={custom}
           onChange={e => { setCustom(e.target.value); setSelected(null) }}
-          placeholder="Введите количество Stars"
-          className="w-full bg-[var(--tg-theme-secondary-bg-color)] rounded-xl px-4 py-3 text-white placeholder-[var(--tg-theme-hint-color)] outline-none focus:ring-2 focus:ring-[var(--tg-theme-button-color)]"
-          min={1}
+          placeholder="Например: 750"
+          className="input" min={1}
         />
       </div>
 
+      {/* Price preview */}
       {selectedStars > 0 && (
-        <div className="card flex justify-between items-center">
-          <span className="text-[var(--tg-theme-hint-color)]">К оплате:</span>
-          <span className="font-bold text-lg">{price.toLocaleString()} ₽</span>
+        <div className="afu" style={{
+          background: 'linear-gradient(135deg, rgba(255,230,0,0.08), rgba(255,149,0,0.05))',
+          border: '1px solid rgba(255,230,0,0.2)',
+          borderRadius: 16, padding: '12px 16px', marginBottom: 16,
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <span style={{ color: '#6060a0', fontWeight: 700 }}>К оплате</span>
+          <span style={{ fontSize: 20, fontWeight: 900, color: '#ffe600' }}>{price.toLocaleString()} ₽</span>
         </div>
       )}
 
-      {error && <p className="text-red-400 text-sm">{error}</p>}
-      {success && <p className="text-green-400 text-sm">{success}</p>}
+      {error && <p style={{ color: '#ff6b6b', fontSize: 13, fontWeight: 700, marginBottom: 12 }}>{error}</p>}
+      {success && <p style={{ color: '#00ff87', fontSize: 13, fontWeight: 700, marginBottom: 12 }}>{success}</p>}
 
-      <button
-        onClick={handleBuy}
-        disabled={loading || selectedStars < 1}
-        className="btn-primary"
-      >
-        {loading ? 'Обработка...' : `Купить ${selectedStars > 0 ? selectedStars + ' Stars' : ''}`}
+      <button onClick={handleBuy} disabled={loading || selectedStars < 1} className="btn-primary" style={{
+        background: 'linear-gradient(135deg, #ffe600, #ff9500)',
+        boxShadow: '0 4px 24px rgba(255,230,0,0.35)', color: '#000',
+      }}>
+        {loading ? '⏳ Обработка...' : `⭐️ Купить ${selectedStars > 0 ? selectedStars + ' Stars' : ''}`}
       </button>
     </div>
   )
