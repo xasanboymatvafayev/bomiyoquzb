@@ -7,11 +7,10 @@ export default function Home({ profile, onDeposit }: HomeProps) {
   const premiumDate = profile?.premium_expire
     ? new Date(profile.premium_expire).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
     : null
-  const name = profile?.username || window?.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'пользователь'
+  const name = profile?.username || 'пользователь'
 
   return (
     <div style={{ padding: '16px 16px 0' }}>
-      {/* Header */}
       <div className="afu" style={{ paddingTop: 16, marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
@@ -24,22 +23,18 @@ export default function Home({ profile, onDeposit }: HomeProps) {
             {name[0]?.toUpperCase() || '?'}
           </div>
           <div>
-            <p style={{ fontSize: 18, fontWeight: 900, color: '#f0f0f8' }}>
-              Привет, {name}! 👋
-            </p>
+            <p style={{ fontSize: 18, fontWeight: 900, color: '#f0f0f8' }}>Привет, {name}! 👋</p>
             <p style={{ fontSize: 12, color: '#6060a0', fontWeight: 600 }}>Ваш кошелёк</p>
           </div>
         </div>
       </div>
 
-      {/* Balance Card */}
       <div className="afu2" style={{
         background: 'linear-gradient(135deg, #1a0a1e, #0a1520)',
         border: '1px solid rgba(255,60,172,0.2)',
         borderRadius: 24, padding: 20, marginBottom: 14,
         position: 'relative', overflow: 'hidden',
       }}>
-        {/* Glow orb */}
         <div style={{
           position: 'absolute', top: -30, right: -20,
           width: 120, height: 120,
@@ -61,7 +56,6 @@ export default function Home({ profile, onDeposit }: HomeProps) {
         </button>
       </div>
 
-      {/* Stats Row */}
       <div className="afu3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
         <div style={{
           background: 'linear-gradient(135deg, #0a1a0a, #061410)',
@@ -85,7 +79,6 @@ export default function Home({ profile, onDeposit }: HomeProps) {
         </div>
       </div>
 
-      {/* Info card */}
       <div className="afu4 card" style={{ marginBottom: 16 }}>
         <p style={{ fontWeight: 800, marginBottom: 12, fontSize: 15 }}>🚀 Почему выбирают нас?</p>
         {[
@@ -95,11 +88,11 @@ export default function Home({ profile, onDeposit }: HomeProps) {
           { icon: '🛡', text: 'Поддержка 24/7', color: '#ff3cac' },
         ].map(({ icon, text, color }) => (
           <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <span style={{
+            <div style={{
               width: 32, height: 32, borderRadius: 10,
               background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 16, flexShrink: 0,
-            }}>{icon}</span>
+            }}>{icon}</div>
             <span style={{ fontSize: 14, fontWeight: 600, color: '#c0c0e0' }}>{text}</span>
           </div>
         ))}
