@@ -1,67 +1,108 @@
 'use client'
 
-interface HomeProps {
-  profile: any
-  onDeposit: () => void
-  onRefresh: () => void
-}
+interface HomeProps { profile: any; onDeposit: () => void; onRefresh: () => void }
 
-export default function Home({ profile, onDeposit, onRefresh }: HomeProps) {
+export default function Home({ profile, onDeposit }: HomeProps) {
+  const balance = profile ? Number(profile.balance).toLocaleString('ru-RU') : null
   const premiumDate = profile?.premium_expire
-    ? new Date(profile.premium_expire).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+    ? new Date(profile.premium_expire).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
     : null
+  const name = profile?.username || window?.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'пользователь'
 
   return (
-    <div className="p-4 space-y-4">
+    <div style={{ padding: '16px 16px 0' }}>
       {/* Header */}
-      <div className="pt-4 pb-2">
-        <h1 className="text-2xl font-bold">
-          Привет, {profile?.username || 'пользователь'} 👋
-        </h1>
-        <p className="text-[var(--tg-theme-hint-color)] text-sm mt-1">Ваш кошелёк</p>
+      <div className="afu" style={{ paddingTop: 16, marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 46, height: 46, borderRadius: 14,
+            background: 'linear-gradient(135deg, #ff3cac, #a855f7)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 20, fontWeight: 900, color: '#fff',
+            boxShadow: '0 4px 16px rgba(255,60,172,0.4)',
+          }}>
+            {name[0]?.toUpperCase() || '?'}
+          </div>
+          <div>
+            <p style={{ fontSize: 18, fontWeight: 900, color: '#f0f0f8' }}>
+              Привет, {name}! 👋
+            </p>
+            <p style={{ fontSize: 12, color: '#6060a0', fontWeight: 600 }}>Ваш кошелёк</p>
+          </div>
+        </div>
       </div>
 
       {/* Balance Card */}
-      <div className="card relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 pointer-events-none" />
-        <div className="relative">
-          <p className="text-[var(--tg-theme-hint-color)] text-sm">Баланс</p>
-          <p className="text-4xl font-bold mt-1">
-            {profile ? `${Number(profile.balance).toLocaleString('ru-RU')} ₽` : '—'}
+      <div className="afu2" style={{
+        background: 'linear-gradient(135deg, #1a0a1e, #0a1520)',
+        border: '1px solid rgba(255,60,172,0.2)',
+        borderRadius: 24, padding: 20, marginBottom: 14,
+        position: 'relative', overflow: 'hidden',
+      }}>
+        {/* Glow orb */}
+        <div style={{
+          position: 'absolute', top: -30, right: -20,
+          width: 120, height: 120,
+          background: 'radial-gradient(circle, rgba(255,60,172,0.25) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }} />
+        <p style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ff3cac', marginBottom: 4 }}>
+          💳 Баланс
+        </p>
+        {balance === null ? (
+          <div className="shimmer" style={{ width: 140, height: 40, borderRadius: 8, marginBottom: 16 }} />
+        ) : (
+          <p style={{ fontSize: 36, fontWeight: 900, color: '#fff', marginBottom: 16, letterSpacing: '-0.02em' }}>
+            {balance} <span style={{ fontSize: 20, color: '#ff3cac' }}>₽</span>
           </p>
-          <button
-            onClick={onDeposit}
-            className="mt-4 flex items-center gap-2 bg-[var(--tg-theme-button-color)] text-white font-semibold px-6 py-3 rounded-xl text-sm transition-opacity active:opacity-80"
-          >
-            <span className="text-lg">+</span> Пополнить
-          </button>
-        </div>
+        )}
+        <button onClick={onDeposit} className="btn-primary" style={{ width: 'auto', padding: '10px 22px', fontSize: 14 }}>
+          <span style={{ fontSize: 18 }}>+</span> Пополнить
+        </button>
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="card text-center">
-          <p className="text-3xl">⭐️</p>
-          <p className="text-xl font-bold mt-1">{profile?.stars ?? 0}</p>
-          <p className="text-xs text-[var(--tg-theme-hint-color)] mt-0.5">Stars</p>
+      <div className="afu3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #0a1a0a, #061410)',
+          border: '1px solid rgba(0,245,255,0.15)',
+          borderRadius: 20, padding: 16, textAlign: 'center',
+        }}>
+          <span className="float" style={{ display: 'block', fontSize: 28, marginBottom: 6 }}>⭐️</span>
+          <p style={{ fontSize: 24, fontWeight: 900, color: '#ffe600' }}>{profile?.stars ?? 0}</p>
+          <p style={{ fontSize: 11, fontWeight: 800, color: '#00f5ff', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>Stars</p>
         </div>
-        <div className="card text-center">
-          <p className="text-3xl">💎</p>
-          <p className="text-sm font-semibold mt-1 leading-tight">
+        <div style={{
+          background: 'linear-gradient(135deg, #0a0a1a, #100614)',
+          border: '1px solid rgba(168,85,247,0.15)',
+          borderRadius: 20, padding: 16, textAlign: 'center',
+        }}>
+          <span className="float" style={{ display: 'block', fontSize: 28, marginBottom: 6, animationDelay: '0.5s' }}>💎</span>
+          <p style={{ fontSize: 14, fontWeight: 800, color: '#a855f7', lineHeight: 1.3 }}>
             {premiumDate ? `до ${premiumDate}` : 'Нет'}
           </p>
-          <p className="text-xs text-[var(--tg-theme-hint-color)] mt-0.5">Premium</p>
+          <p style={{ fontSize: 11, fontWeight: 800, color: '#a855f7', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>Premium</p>
         </div>
       </div>
 
-      {/* Quick info */}
-      <div className="card space-y-3">
-        <p className="font-semibold">💳 Оплата банковской картой</p>
-        <div className="space-y-2 text-sm text-[var(--tg-theme-hint-color)]">
-          <p>✅ Безопасный платёж</p>
-          <p>✅ Начисление автоматически</p>
-          <p>✅ Поддержка 24/7</p>
-        </div>
+      {/* Info card */}
+      <div className="afu4 card" style={{ marginBottom: 16 }}>
+        <p style={{ fontWeight: 800, marginBottom: 12, fontSize: 15 }}>🚀 Почему выбирают нас?</p>
+        {[
+          { icon: '⚡️', text: 'Мгновенное зачисление', color: '#ffe600' },
+          { icon: '🔒', text: 'Безопасный платёж', color: '#00ff87' },
+          { icon: '💳', text: 'Оплата банковской картой', color: '#00f5ff' },
+          { icon: '🛡', text: 'Поддержка 24/7', color: '#ff3cac' },
+        ].map(({ icon, text, color }) => (
+          <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{
+              width: 32, height: 32, borderRadius: 10,
+              background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 16, flexShrink: 0,
+            }}>{icon}</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#c0c0e0' }}>{text}</span>
+          </div>
+        ))}
       </div>
     </div>
   )
