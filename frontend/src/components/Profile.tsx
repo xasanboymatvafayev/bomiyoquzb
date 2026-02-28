@@ -2,129 +2,160 @@
 import { useState, useEffect } from 'react'
 import { fetchHistory, fetchLeaderboard } from '@/lib/api'
 
-interface ProfileProps {
-  profile: any
+const TYPE_LABELS: Record<string, { label: string; color: string; icon: string }> = {
+  deposit: { label: 'Пополнение', color: '#00f5ff', icon: '💳' },
+  stars: { label: 'Stars', color: '#ffe600', icon: '⭐️' },
+  premium: { label: 'Premium', color: '#a855f7', icon: '💎' },
 }
-
-const TYPE_LABELS: Record<string, string> = {
-  deposit: '💳 Пополнение',
-  stars: '⭐️ Stars',
-  premium: '💎 Premium',
-}
-
 const STATUS_COLORS: Record<string, string> = {
-  paid: 'text-green-400',
-  pending: 'text-yellow-400',
-  failed: 'text-red-400',
-  cancelled: 'text-gray-400',
+  paid: '#00ff87', pending: '#ffe600', failed: '#ff6b6b', cancelled: '#6060a0'
 }
 
-export default function Profile({ profile }: ProfileProps) {
-  const [tab, setTab] = useState<'history' | 'rating'>('history')
+interface Props { profile: any }
+
+export default function Profile({ profile }: Props) {
+  const [tab, setTab] = useState<'history'|'rating'>('history')
   const [history, setHistory] = useState<any[]>([])
   const [leaderboard, setLeaderboard] = useState<any[]>([])
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    if (tab === 'history') fetchHistory().then(setHistory).catch(console.error)
-    if (tab === 'rating') fetchLeaderboard().then(setLeaderboard).catch(console.error)
+    if (tab === 'history') fetchHistory().then(setHistory).catch(() => {})
+    if (tab === 'rating') fetchLeaderboard().then(setLeaderboard).catch(() => {})
   }, [tab])
 
   function copyReferral() {
-    const link = `https://t.me/yourbot?start=${profile?.referral_code}`
-    navigator.clipboard.writeText(link)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    navigator.clipboard.writeText(`https://t.me/yourbot?start=${profile?.referral_code}`)
+    setCopied(true); setTimeout(() => setCopied(false), 2000)
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="pt-4">
-        <h2 className="text-2xl font-bold">👤 Профиль</h2>
-      </div>
-
-      {/* Profile card */}
-      <div className="card space-y-3">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[var(--tg-theme-button-color)]/20 flex items-center justify-center text-2xl">
-            {profile?.username?.[0]?.toUpperCase() || '?'}
+    <div style={{ padding: '16px 16px 0' }}>
+      <div className="afu" style={{ paddingTop: 16, marginBottom: 16 }}>
+        {/* Avatar + info */}
+        <div style={{
+          background: 'linear-gradient(135deg, #1a0a1e, #0a0a1a)',
+          border: '1px solid rgba(255,60,172,0.15)',
+          borderRadius: 24, padding: 16, marginBottom: 12,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+            <div style={{
+              width: 52, height: 52, borderRadius: 16,
+              background: 'linear-gradient(135deg, #ff3cac, #a855f7)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 22, fontWeight: 900, color: '#fff',
+              boxShadow: '0 4px 16px rgba(255,60,172,0.4)',
+            }}>
+              {profile?.username?.[0]?.toUpperCase() || '?'}
+            </div>
+            <div>
+              <p style={{ fontSize: 17, fontWeight: 900 }}>@{profile?.username || 'unknown'}</p>
+              <p style={{ fontSize: 13, color: '#00ff87', fontWeight: 700 }}>
+                {profile ? `${Number(profile.balance).toLocaleString()} ₽` : '—'}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-lg">@{profile?.username || 'unknown'}</p>
-            <p className="text-[var(--tg-theme-hint-color)] text-sm">
-              Баланс: {profile ? `${Number(profile.balance).toLocaleString()} ₽` : '—'}
-            </p>
-          </div>
-        </div>
-
-        {/* Referral */}
-        <div>
-          <p className="text-xs text-[var(--tg-theme-hint-color)] mb-1">Реферальная ссылка</p>
-          <button
-            onClick={copyReferral}
-            className="w-full text-left bg-black/20 rounded-lg px-3 py-2 text-sm text-[var(--tg-theme-link-color)] truncate"
-          >
+          {/* Referral */}
+          <p className="label" style={{ marginBottom: 6 }}>Реферальная ссылка</p>
+          <button onClick={copyReferral} style={{
+            width: '100%', background: 'rgba(0,245,255,0.06)',
+            border: '1px solid rgba(0,245,255,0.15)', borderRadius: 12,
+            padding: '10px 14px', color: copied ? '#00ff87' : '#00f5ff',
+            fontSize: 13, fontWeight: 700, cursor: 'pointer', textAlign: 'left',
+            transition: 'all 0.2s', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
             {copied ? '✅ Скопировано!' : `t.me/yourbot?start=${profile?.referral_code || '...'}`}
           </button>
         </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="flex bg-[var(--tg-theme-secondary-bg-color)] rounded-xl p-1">
-        {(['history', 'rating'] as const).map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
-              tab === t ? 'bg-[var(--tg-theme-button-color)] text-white' : 'text-[var(--tg-theme-hint-color)]'
-            }`}
-          >
-            {t === 'history' ? '📋 История' : '🏆 Рейтинг'}
-          </button>
-        ))}
-      </div>
-
-      {/* History */}
-      {tab === 'history' && (
-        <div className="space-y-2">
-          {history.length === 0 && (
-            <p className="text-center text-[var(--tg-theme-hint-color)] py-8">Нет транзакций</p>
-          )}
-          {history.map(tx => (
-            <div key={tx.id} className="card flex justify-between items-center">
-              <div>
-                <p className="font-medium text-sm">{TYPE_LABELS[tx.type] || tx.type}</p>
-                <p className="text-xs text-[var(--tg-theme-hint-color)]">
-                  {new Date(tx.created_at).toLocaleDateString('ru-RU')}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold">{Number(tx.amount).toLocaleString()} ₽</p>
-                <p className={`text-xs ${STATUS_COLORS[tx.status]}`}>{tx.status}</p>
-              </div>
-            </div>
+        {/* Tabs */}
+        <div style={{
+          display: 'flex', background: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: 16, padding: 4, marginBottom: 14, gap: 4,
+        }}>
+          {(['history','rating'] as const).map(t => (
+            <button key={t} onClick={() => setTab(t)} style={{
+              flex: 1, padding: '10px 0',
+              background: tab === t ? 'linear-gradient(135deg, #ff3cac, #a855f7)' : 'transparent',
+              border: 'none', borderRadius: 12, cursor: 'pointer',
+              fontSize: 13, fontWeight: 800,
+              color: tab === t ? '#fff' : '#6060a0',
+              transition: 'all 0.2s',
+            }}>
+              {t === 'history' ? '📋 История' : '🏆 Рейтинг'}
+            </button>
           ))}
         </div>
-      )}
 
-      {/* Leaderboard */}
-      {tab === 'rating' && (
-        <div className="space-y-2">
-          {leaderboard.map(row => (
-            <div key={row.rank} className="card flex items-center gap-3">
-              <span className={`text-lg font-bold w-8 text-center ${
-                row.rank === 1 ? 'text-yellow-400' :
-                row.rank === 2 ? 'text-gray-300' :
-                row.rank === 3 ? 'text-amber-600' : 'text-[var(--tg-theme-hint-color)]'
-              }`}>
-                {row.rank <= 3 ? ['🥇', '🥈', '🥉'][row.rank - 1] : `#${row.rank}`}
-              </span>
-              <p className="flex-1 font-medium">{row.username}</p>
-              <p className="text-sm text-[var(--tg-theme-hint-color)]">{Number(row.total_spent).toLocaleString()} ₽</p>
-            </div>
-          ))}
-        </div>
-      )}
+        {/* History */}
+        {tab === 'history' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {history.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#6060a0' }}>
+                <p style={{ fontSize: 32, marginBottom: 8 }}>📭</p>
+                <p style={{ fontWeight: 700 }}>Нет транзакций</p>
+              </div>
+            )}
+            {history.map(tx => {
+              const meta = TYPE_LABELS[tx.type] || { label: tx.type, color: '#6060a0', icon: '📄' }
+              return (
+                <div key={tx.id} style={{
+                  background: 'var(--card)', border: '1px solid var(--border)',
+                  borderRadius: 16, padding: '12px 14px',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 10,
+                      background: `${meta.color}15`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
+                    }}>{meta.icon}</div>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 700 }}>{meta.label}</p>
+                      <p style={{ fontSize: 11, color: '#6060a0', fontWeight: 600 }}>
+                        {new Date(tx.created_at).toLocaleDateString('ru-RU')}
+                      </p>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ fontSize: 15, fontWeight: 900 }}>{Number(tx.amount).toLocaleString()} ₽</p>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: STATUS_COLORS[tx.status] || '#6060a0' }}>
+                      {tx.status}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Leaderboard */}
+        {tab === 'rating' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {leaderboard.map((row, i) => {
+              const medals = ['🥇','🥈','🥉']
+              const colors = ['#ffe600','#c0c0d0','#cd7f32']
+              return (
+                <div key={row.rank} style={{
+                  background: i < 3 ? `linear-gradient(135deg, ${colors[i]}10, ${colors[i]}05)` : 'var(--card)',
+                  border: i < 3 ? `1px solid ${colors[i]}30` : '1px solid var(--border)',
+                  borderRadius: 16, padding: '12px 14px',
+                  display: 'flex', alignItems: 'center', gap: 12,
+                }}>
+                  <span style={{ fontSize: i < 3 ? 22 : 14, fontWeight: 900, width: 28, textAlign: 'center', color: colors[i] || '#6060a0' }}>
+                    {i < 3 ? medals[i] : `#${row.rank}`}
+                  </span>
+                  <p style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{row.username}</p>
+                  <p style={{ fontSize: 13, fontWeight: 900, color: i < 3 ? colors[i] : '#6060a0' }}>
+                    {Number(row.total_spent).toLocaleString()} ₽
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
