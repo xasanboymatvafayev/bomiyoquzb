@@ -19,11 +19,10 @@ export default function Stars({ profile, onRefresh }: Props) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const username = profile?.username || (typeof window !== 'undefined' ? window?.Telegram?.WebApp?.initDataUnsafe?.user?.username : '') || ''
-
   async function handleBuy() {
     const stars = selected ?? (custom ? parseInt(custom) : 0)
     if (!stars || stars < 1) return setError('Выберите количество Stars')
+    const username = profile?.username
     if (!username) return setError('Username не найден')
     setLoading(true); setError(''); setSuccess('')
     try {
@@ -41,7 +40,6 @@ export default function Stars({ profile, onRefresh }: Props) {
 
   return (
     <div style={{ padding: '16px 16px 0' }}>
-      {/* Header */}
       <div className="afu" style={{ paddingTop: 16, marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
@@ -59,7 +57,6 @@ export default function Stars({ profile, onRefresh }: Props) {
         </div>
       </div>
 
-      {/* Packages */}
       <p className="label afu2">Выберите пакет</p>
       <div className="afu2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
         {PACKAGES.map(pkg => {
@@ -89,18 +86,13 @@ export default function Stars({ profile, onRefresh }: Props) {
         })}
       </div>
 
-      {/* Custom */}
       <div className="afu3" style={{ marginBottom: 16 }}>
         <p className="label">Своё количество</p>
-        <input
-          type="number" value={custom}
+        <input type="number" value={custom}
           onChange={e => { setCustom(e.target.value); setSelected(null) }}
-          placeholder="Например: 750"
-          className="input" min={1}
-        />
+          placeholder="Например: 750" className="input" min={1} />
       </div>
 
-      {/* Price preview */}
       {selectedStars > 0 && (
         <div className="afu" style={{
           background: 'linear-gradient(135deg, rgba(255,230,0,0.08), rgba(255,149,0,0.05))',
