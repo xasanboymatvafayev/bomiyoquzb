@@ -3,10 +3,10 @@ import { useState } from 'react'
 import { orderPremium } from '@/lib/api'
 
 const PLANS = [
-  { period: '1_oy', label: '1 oy', price: 75000, color: '#00f5ff', per: '75 000 so\'m/oy' },
-  { period: '3_oy', label: '3 oy', price: 200000, color: '#a855f7', badge: '🔥 Mashhur', per: '66 600 so\'m/oy' },
-  { period: '6_oy', label: '6 oy', price: 370000, color: '#00ff87', badge: '💚 Foydali', per: '61 600 so\'m/oy' },
-  { period: '12_oy', label: '12 oy', price: 680000, color: '#ffe600', badge: '⭐ Eng arzon', per: '56 600 so\'m/oy' },
+  { period: '1_oy', label: '1 oy', price: 55000, color: '#00f5ff', per: 'Admin orqali (@Matvafaevv)' },
+  { period: '3_oy', label: '3 oy', price: 200000, color: '#a855f7', badge: '🔥 Mashhur', per: '200 000 so\'m/oy' },
+  { period: '6_oy', label: '6 oy', price: 370000, color: '#00ff87', badge: '💚 Foydali', per: '260 000 so\'m/oy' },
+  { period: '12_oy', label: '12 oy', price: 680000, color: '#ffe600', badge: '⭐ Eng arzon', per: '430 000 so\'m/oy' },
 ]
 
 interface Props { profile: any; onRefresh: () => void }
