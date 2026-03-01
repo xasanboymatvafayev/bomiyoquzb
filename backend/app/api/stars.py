@@ -4,6 +4,7 @@ from sqlalchemy import select
 from pydantic import BaseModel
 import httpx
 import uuid
+from datetime import datetime, timezone, timedelta
 
 from app.core.database import get_db
 from app.core.config import settings
@@ -12,12 +13,14 @@ from app.models.models import User, Transaction, TransactionType, TransactionSta
 
 router = APIRouter()
 
+UZT = timezone(timedelta(hours=5))
+
 STARS_PRICES = {
-    50: 5000,
-    100: 9500,
-    250: 22000,
-    500: 43000,
-    1000: 85000,
+    50: 13000,
+    100: 24000,
+    250: 58000,
+    500: 115000,
+    1000: 227000,
 }
 
 
@@ -25,6 +28,40 @@ class StarsOrderRequest(BaseModel):
     stars: int
     username: str
     init_data: str
+
+
+async def notify_admin_stars(order_id: str, stars: int, amount: float, username: str, telegram_id: int):
+    now = datetime.now(UZT)
+    time_str = now.strftime("%d.%m.%Y %H:%M:%S")
+
+    text = (
+        f"⭐️ <b>Yangi Stars buyurtma</b>\n\n"
+        f"👤 Foydalanuvchi: @{username or 'nomsiz'} (<code>{telegram_id}</code>)\n"
+        f"⭐️ Miqdor: <b>{stars} Stars</b>\n"
+        f"💰 Narx: <b>{int(amount):,} so'm</b>\n"
+        f"🕐 Vaqt: {time_str} (Toshkent)\n"
+        f"🔑 Order: <code>{order_id}</code>\n\n"
+        f"Buyurtmani bajaring va tasdiqlang:"
+    )
+
+    keyboard = {
+        "inline_keyboard": [[
+            {"text": "✅ Bajarildi", "callback_data": f"stars_ok_{order_id}"},
+            {"text": "❌ Bekor", "callback_data": f"stars_no_{order_id}"}
+        ]]
+    }
+
+    async with httpx.AsyncClient() as client:
+        await client.post(
+            f"https://api.telegram.org/bot{settings.BOT_TOKEN}/sendMessage",
+            json={
+                "chat_id": settings.ADMIN_TELEGRAM_ID,
+                "text": text,
+                "parse_mode": "HTML",
+                "reply_markup": keyboard
+            },
+            timeout=10
+        )
 
 
 @router.post("/stars/order")
@@ -35,38 +72,18 @@ async def order_stars(body: StarsOrderRequest, db: AsyncSession = Depends(get_db
     result = await db.execute(select(User).where(User.telegram_id == telegram_id))
     user = result.scalar_one_or_none()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Foydalanuvchi topilmadi")
 
-    # Calculate price
-    price = STARS_PRICES.get(body.stars)
-    if price is None:
-        # Custom stars - calculate proportionally
-        price = round(body.stars * 85000 / 1000)
+    price = STARS_PRICES.get(body.stars, round(body.stars * 240000 / 1000))
 
     if float(user.balance) < price:
-        raise HTTPException(status_code=400, detail="Insufficient balance")
+        raise HTTPException(status_code=400, detail="Balans yetarli emas")
 
-    order_id = str(uuid.uuid4())
+    order_id = str(uuid.uuid4())[:8].upper()
 
-    # Call ArzonStars API
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            f"{settings.ARZONSTARS_BASE_URL}{settings.ARZONSTARS_STARS_ENDPOINT}",
-            headers={"Authorization": f"Bearer {settings.ARZONSTARS_API_KEY}"},
-            json={
-                "username": body.username,
-                "stars": body.stars,
-                "order_id": order_id,
-                "callback_url": f"{settings.WEBAPP_URL.replace('https://', 'https://').rstrip('/')}/api/payment/arzonsstars/webhook"
-            },
-            timeout=30
-        )
-        if resp.status_code != 200:
-            raise HTTPException(status_code=502, detail="ArzonStars API error")
-        data = resp.json()
-
-    # Deduct balance and save transaction
+    # Balansdan ayirish
     user.balance = float(user.balance) - price
+
     tx = Transaction(
         user_id=user.id,
         external_id=order_id,
@@ -78,4 +95,39 @@ async def order_stars(body: StarsOrderRequest, db: AsyncSession = Depends(get_db
     db.add(tx)
     await db.commit()
 
+    try:
+        await notify_admin_stars(order_id, body.stars, price, body.username, telegram_id)
+    except Exception as e:
+        print(f"Admin notify error: {e}")
+
     return {"ok": True, "order_id": order_id}
+
+
+@router.post("/stars/confirm/{order_id}")
+async def confirm_stars(order_id: str, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Transaction).where(Transaction.external_id == order_id))
+    tx = result.scalar_one_or_none()
+    if not tx:
+        raise HTTPException(status_code=404, detail="Buyurtma topilmadi")
+
+    tx.status = TransactionStatus.paid
+    user_result = await db.execute(select(User).where(User.id == tx.user_id))
+    user = user_result.scalar_one()
+    await db.commit()
+    return {"ok": True, "user_id": user.telegram_id, "stars": tx.stars_amount}
+
+
+@router.post("/stars/reject/{order_id}")
+async def reject_stars(order_id: str, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Transaction).where(Transaction.external_id == order_id))
+    tx = result.scalar_one_or_none()
+    if not tx:
+        raise HTTPException(status_code=404, detail="Buyurtma topilmadi")
+
+    # Pulni qaytarish
+    user_result = await db.execute(select(User).where(User.id == tx.user_id))
+    user = user_result.scalar_one()
+    user.balance = float(user.balance) + float(tx.amount)
+    tx.status = TransactionStatus.cancelled
+    await db.commit()
+    return {"ok": True}
