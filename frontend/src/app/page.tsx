@@ -19,17 +19,16 @@ declare global {
         openLink(url: string): void
         setHeaderColor(color: string): void
         setBackgroundColor(color: string): void
-        colorScheme: string
       }
     }
   }
 }
 
 const TABS = [
-  { id: 'home', icon: '🏠', label: 'Главная' },
+  { id: 'home', icon: '🏠', label: 'Bosh sahifa' },
   { id: 'stars', icon: '⭐️', label: 'Stars' },
   { id: 'premium', icon: '💎', label: 'Premium' },
-  { id: 'profile', icon: '👤', label: 'Профиль' },
+  { id: 'profile', icon: '👤', label: 'Profil' },
 ] as const
 
 export default function App() {
@@ -56,10 +55,9 @@ export default function App() {
         {tab === 'profile' && <Profile profile={profile} />}
       </div>
 
-      {/* Bottom Nav */}
       <nav style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-        background: 'rgba(13,13,15,0.92)', backdropFilter: 'blur(20px)',
+        background: 'rgba(13,13,15,0.95)', backdropFilter: 'blur(20px)',
         borderTop: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-around',
         padding: '8px 4px 12px',
@@ -69,13 +67,13 @@ export default function App() {
           return (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-              padding: '6px 16px', borderRadius: 14, border: 'none', cursor: 'pointer',
+              padding: '6px 12px', borderRadius: 14, border: 'none', cursor: 'pointer',
               background: active ? 'rgba(255,60,172,0.12)' : 'transparent',
               transition: 'all 0.2s',
             }}>
               <span style={{ fontSize: 22, opacity: active ? 1 : 0.4, transition: 'opacity 0.2s' }}>{t.icon}</span>
               <span style={{
-                fontSize: 10, fontWeight: 800, fontFamily: 'Nunito, sans-serif',
+                fontSize: 9, fontWeight: 800, fontFamily: 'Nunito, sans-serif',
                 color: active ? '#ff3cac' : '#6060a0',
                 transition: 'color 0.2s', textTransform: 'uppercase', letterSpacing: '0.04em'
               }}>{t.label}</span>
