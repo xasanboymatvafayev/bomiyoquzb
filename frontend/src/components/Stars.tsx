@@ -3,11 +3,11 @@ import { useState } from 'react'
 import { orderStars } from '@/lib/api'
 
 const PACKAGES = [
-  { stars: 50, price: 15000, emoji: '✨' },
-  { stars: 100, price: 28000, emoji: '⭐️' },
-  { stars: 250, price: 65000, emoji: '🌟' },
-  { stars: 500, price: 125000, emoji: '💫' },
-  { stars: 1000, price: 240000, emoji: '🚀', hot: true },
+  { stars: 50, price: 13000, emoji: '✨' },
+  { stars: 100, price: 24000, emoji: '⭐️' },
+  { stars: 250, price: 58000, emoji: '🌟' },
+  { stars: 500, price: 115000, emoji: '💫' },
+  { stars: 1000, price: 227000, emoji: '🚀', hot: true },
 ]
 
 interface Props { profile: any; onRefresh: () => void }
