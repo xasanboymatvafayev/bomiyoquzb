@@ -3,11 +3,11 @@ import { useState } from 'react'
 import { orderStars } from '@/lib/api'
 
 const PACKAGES = [
-  { stars: 50, price: 5000, emoji: '✨' },
-  { stars: 100, price: 9500, emoji: '⭐️' },
-  { stars: 250, price: 22000, emoji: '🌟' },
-  { stars: 500, price: 43000, emoji: '💫' },
-  { stars: 1000, price: 85000, emoji: '🚀', hot: true },
+  { stars: 50, price: 15000, emoji: '✨' },
+  { stars: 100, price: 28000, emoji: '⭐️' },
+  { stars: 250, price: 65000, emoji: '🌟' },
+  { stars: 500, price: 125000, emoji: '💫' },
+  { stars: 1000, price: 240000, emoji: '🚀', hot: true },
 ]
 
 interface Props { profile: any; onRefresh: () => void }
@@ -21,22 +21,22 @@ export default function Stars({ profile, onRefresh }: Props) {
 
   async function handleBuy() {
     const stars = selected ?? (custom ? parseInt(custom) : 0)
-    if (!stars || stars < 1) return setError('Выберите количество Stars')
+    if (!stars || stars < 1) return setError('Stars miqdorini tanlang')
     const username = profile?.username
-    if (!username) return setError('Username не найден')
+    if (!username) return setError('Username topilmadi')
     setLoading(true); setError(''); setSuccess('')
     try {
       await orderStars(stars, username)
-      setSuccess(`🎉 Заказ на ${stars} Stars создан!`)
+      setSuccess(`🎉 ${stars} Stars buyurtmasi yaratildi!`)
       onRefresh()
     } catch (e: any) {
-      setError(e?.response?.data?.detail || 'Ошибка при заказе')
+      setError(e?.response?.data?.detail || 'Xato yuz berdi')
     } finally { setLoading(false) }
   }
 
   const selectedStars = selected ?? (custom ? parseInt(custom) || 0 : 0)
   const price = PACKAGES.find(p => p.stars === selectedStars)?.price
-    ?? (selectedStars > 0 ? Math.round(selectedStars * 85000 / 1000) : 0)
+    ?? (selectedStars > 0 ? Math.round(selectedStars * 240000 / 1000) : 0)
 
   return (
     <div style={{ padding: '16px 16px 0' }}>
@@ -51,13 +51,13 @@ export default function Stars({ profile, onRefresh }: Props) {
           <div>
             <p style={{ fontSize: 20, fontWeight: 900 }}>Telegram Stars</p>
             <p style={{ fontSize: 12, color: '#6060a0', fontWeight: 600 }}>
-              Баланс: {profile ? `${Number(profile.balance).toLocaleString()} ₽` : '—'}
+              Balans: {profile ? `${Number(profile.balance).toLocaleString()} so'm` : '—'}
             </p>
           </div>
         </div>
       </div>
 
-      <p className="label afu2">Выберите пакет</p>
+      <p className="label afu2">Paket tanlang</p>
       <div className="afu2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
         {PACKAGES.map(pkg => {
           const active = selected === pkg.stars
@@ -74,23 +74,24 @@ export default function Stars({ profile, onRefresh }: Props) {
                 <span style={{
                   position: 'absolute', top: -8, right: -6,
                   background: 'linear-gradient(135deg, #ff3cac, #a855f7)',
-                  color: '#fff', fontSize: 9, fontWeight: 800,
-                  padding: '2px 6px', borderRadius: 6,
-                }}>HOT</span>
+                  color: '#fff', fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 6,
+                }}>🔥HOT</span>
               )}
               <span style={{ fontSize: 20 }}>{pkg.emoji}</span>
               <span style={{ fontSize: 16, fontWeight: 900, color: active ? '#ffe600' : '#f0f0f8' }}>{pkg.stars}</span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#6060a0' }}>{(pkg.price/1000).toFixed(1)}k ₽</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#6060a0' }}>
+                {pkg.price >= 1000 ? `${(pkg.price/1000).toFixed(0)}K` : pkg.price} so'm
+              </span>
             </button>
           )
         })}
       </div>
 
       <div className="afu3" style={{ marginBottom: 16 }}>
-        <p className="label">Своё количество</p>
+        <p className="label">O'z miqdoringiz</p>
         <input type="number" value={custom}
           onChange={e => { setCustom(e.target.value); setSelected(null) }}
-          placeholder="Например: 750" className="input" min={1} />
+          placeholder="Masalan: 750" className="input" min={1} />
       </div>
 
       {selectedStars > 0 && (
@@ -100,8 +101,8 @@ export default function Stars({ profile, onRefresh }: Props) {
           borderRadius: 16, padding: '12px 16px', marginBottom: 16,
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
-          <span style={{ color: '#6060a0', fontWeight: 700 }}>К оплате</span>
-          <span style={{ fontSize: 20, fontWeight: 900, color: '#ffe600' }}>{price.toLocaleString()} ₽</span>
+          <span style={{ color: '#6060a0', fontWeight: 700 }}>To'lov summasi</span>
+          <span style={{ fontSize: 20, fontWeight: 900, color: '#ffe600' }}>{price.toLocaleString()} so'm</span>
         </div>
       )}
 
@@ -112,7 +113,7 @@ export default function Stars({ profile, onRefresh }: Props) {
         background: 'linear-gradient(135deg, #ffe600, #ff9500)',
         boxShadow: '0 4px 24px rgba(255,230,0,0.35)', color: '#000',
       }}>
-        {loading ? '⏳ Обработка...' : `⭐️ Купить ${selectedStars > 0 ? selectedStars + ' Stars' : ''}`}
+        {loading ? '⏳ Yuklanmoqda...' : `⭐️ Sotib olish${selectedStars > 0 ? ` — ${selectedStars} Stars` : ''}`}
       </button>
     </div>
   )
