@@ -3,10 +3,10 @@ import { useState } from 'react'
 import { orderPremium } from '@/lib/api'
 
 const PLANS = [
-  { period: '1_oy', label: '1 месяц', price: 25000, color: '#00f5ff', per: '25 000 ₽/мес' },
-  { period: '3_oy', label: '3 месяца', price: 65000, color: '#a855f7', badge: '🔥 Хит', per: '21 600 ₽/мес' },
-  { period: '6_oy', label: '6 месяцев', price: 120000, color: '#00ff87', badge: '💚 Выгодно', per: '20 000 ₽/мес' },
-  { period: '12_oy', label: '12 месяцев', price: 220000, color: '#ffe600', badge: '⭐ Лучшая цена', per: '18 300 ₽/мес' },
+  { period: '1_oy', label: '1 oy', price: 75000, color: '#00f5ff', per: '75 000 so\'m/oy' },
+  { period: '3_oy', label: '3 oy', price: 200000, color: '#a855f7', badge: '🔥 Mashhur', per: '66 600 so\'m/oy' },
+  { period: '6_oy', label: '6 oy', price: 370000, color: '#00ff87', badge: '💚 Foydali', per: '61 600 so\'m/oy' },
+  { period: '12_oy', label: '12 oy', price: 680000, color: '#ffe600', badge: '⭐ Eng arzon', per: '56 600 so\'m/oy' },
 ]
 
 interface Props { profile: any; onRefresh: () => void }
@@ -18,16 +18,16 @@ export default function Premium({ profile, onRefresh }: Props) {
   const [success, setSuccess] = useState('')
 
   async function handleBuy() {
-    if (!selected) return setError('Выберите план')
+    if (!selected) return setError('Reja tanlang')
     const username = profile?.username
-    if (!username) return setError('Username не найден')
+    if (!username) return setError('Username topilmadi')
     setLoading(true); setError(''); setSuccess('')
     try {
       await orderPremium(selected, username)
-      setSuccess('🎉 Premium активируется автоматически!')
+      setSuccess('🎉 Premium avtomatik faollashadi!')
       onRefresh()
     } catch (e: any) {
-      setError(e?.response?.data?.detail || 'Ошибка при заказе')
+      setError(e?.response?.data?.detail || 'Xato yuz berdi')
     } finally { setLoading(false) }
   }
 
@@ -46,13 +46,13 @@ export default function Premium({ profile, onRefresh }: Props) {
           <div>
             <p style={{ fontSize: 20, fontWeight: 900 }}>Telegram Premium</p>
             <p style={{ fontSize: 12, color: '#6060a0', fontWeight: 600 }}>
-              Баланс: {profile ? `${Number(profile.balance).toLocaleString()} ₽` : '—'}
+              Balans: {profile ? `${Number(profile.balance).toLocaleString()} so'm` : '—'}
             </p>
           </div>
         </div>
       </div>
 
-      <p className="label afu2">Выберите план</p>
+      <p className="label afu2">Reja tanlang</p>
       <div className="afu2" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
         {PLANS.map(p => {
           const active = selected === p.period
@@ -82,8 +82,8 @@ export default function Premium({ profile, onRefresh }: Props) {
                   )}
                 </div>
               </div>
-              <p style={{ fontSize: 18, fontWeight: 900, color: active ? p.color : '#f0f0f8' }}>
-                {p.price.toLocaleString()} ₽
+              <p style={{ fontSize: 17, fontWeight: 900, color: active ? p.color : '#f0f0f8' }}>
+                {p.price.toLocaleString()} so'm
               </p>
             </button>
           )
@@ -97,8 +97,8 @@ export default function Premium({ profile, onRefresh }: Props) {
           borderRadius: 16, padding: '12px 16px', marginBottom: 16,
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
-          <span style={{ color: '#6060a0', fontWeight: 700 }}>К оплате</span>
-          <span style={{ fontSize: 20, fontWeight: 900, color: plan.color }}>{plan.price.toLocaleString()} ₽</span>
+          <span style={{ color: '#6060a0', fontWeight: 700 }}>To'lov summasi</span>
+          <span style={{ fontSize: 20, fontWeight: 900, color: plan.color }}>{plan.price.toLocaleString()} so'm</span>
         </div>
       )}
 
@@ -109,7 +109,7 @@ export default function Premium({ profile, onRefresh }: Props) {
         background: 'linear-gradient(135deg, #a855f7, #00f5ff)',
         boxShadow: '0 4px 24px rgba(168,85,247,0.4)', color: '#fff',
       }}>
-        {loading ? '⏳ Обработка...' : '💎 Купить Premium'}
+        {loading ? '⏳ Yuklanmoqda...' : '💎 Premium sotib olish'}
       </button>
     </div>
   )
