@@ -3,9 +3,12 @@ import { useState, useEffect } from 'react'
 import { fetchHistory, fetchLeaderboard } from '@/lib/api'
 
 const TYPE_LABELS: Record<string, { label: string; color: string; icon: string }> = {
-  deposit: { label: 'Пополнение', color: '#00f5ff', icon: '💳' },
+  deposit: { label: 'Balans to\'ldirish', color: '#00f5ff', icon: '💳' },
   stars: { label: 'Stars', color: '#ffe600', icon: '⭐️' },
   premium: { label: 'Premium', color: '#a855f7', icon: '💎' },
+}
+const STATUS_LABELS: Record<string, string> = {
+  paid: 'Tasdiqlandi', pending: 'Kutilmoqda', failed: 'Xato', cancelled: 'Bekor'
 }
 const STATUS_COLORS: Record<string, string> = {
   paid: '#00ff87', pending: '#ffe600', failed: '#ff6b6b', cancelled: '#6060a0'
@@ -32,7 +35,6 @@ export default function Profile({ profile }: Props) {
   return (
     <div style={{ padding: '16px 16px 0' }}>
       <div className="afu" style={{ paddingTop: 16, marginBottom: 16 }}>
-        {/* Avatar + info */}
         <div style={{
           background: 'linear-gradient(135deg, #1a0a1e, #0a0a1a)',
           border: '1px solid rgba(255,60,172,0.15)',
@@ -51,12 +53,11 @@ export default function Profile({ profile }: Props) {
             <div>
               <p style={{ fontSize: 17, fontWeight: 900 }}>@{profile?.username || 'unknown'}</p>
               <p style={{ fontSize: 13, color: '#00ff87', fontWeight: 700 }}>
-                {profile ? `${Number(profile.balance).toLocaleString()} ₽` : '—'}
+                {profile ? `${Number(profile.balance).toLocaleString()} so'm` : '—'}
               </p>
             </div>
           </div>
-          {/* Referral */}
-          <p className="label" style={{ marginBottom: 6 }}>Реферальная ссылка</p>
+          <p className="label" style={{ marginBottom: 6 }}>Referal havola</p>
           <button onClick={copyReferral} style={{
             width: '100%', background: 'rgba(0,245,255,0.06)',
             border: '1px solid rgba(0,245,255,0.15)', borderRadius: 12,
@@ -64,15 +65,13 @@ export default function Profile({ profile }: Props) {
             fontSize: 13, fontWeight: 700, cursor: 'pointer', textAlign: 'left',
             transition: 'all 0.2s', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>
-            {copied ? '✅ Скопировано!' : `t.me/yourbot?start=${profile?.referral_code || '...'}`}
+            {copied ? '✅ Nusxalandi!' : `t.me/yourbot?start=${profile?.referral_code || '...'}`}
           </button>
         </div>
 
-        {/* Tabs */}
         <div style={{
           display: 'flex', background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: 16, padding: 4, marginBottom: 14, gap: 4,
+          border: '1px solid var(--border)', borderRadius: 16, padding: 4, marginBottom: 14, gap: 4,
         }}>
           {(['history','rating'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
@@ -80,21 +79,19 @@ export default function Profile({ profile }: Props) {
               background: tab === t ? 'linear-gradient(135deg, #ff3cac, #a855f7)' : 'transparent',
               border: 'none', borderRadius: 12, cursor: 'pointer',
               fontSize: 13, fontWeight: 800,
-              color: tab === t ? '#fff' : '#6060a0',
-              transition: 'all 0.2s',
+              color: tab === t ? '#fff' : '#6060a0', transition: 'all 0.2s',
             }}>
-              {t === 'history' ? '📋 История' : '🏆 Рейтинг'}
+              {t === 'history' ? '📋 Tarix' : '🏆 Reyting'}
             </button>
           ))}
         </div>
 
-        {/* History */}
         {tab === 'history' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {history.length === 0 && (
               <div style={{ textAlign: 'center', padding: '40px 0', color: '#6060a0' }}>
                 <p style={{ fontSize: 32, marginBottom: 8 }}>📭</p>
-                <p style={{ fontWeight: 700 }}>Нет транзакций</p>
+                <p style={{ fontWeight: 700 }}>Tranzaksiyalar yo'q</p>
               </div>
             )}
             {history.map(tx => {
@@ -114,14 +111,14 @@ export default function Profile({ profile }: Props) {
                     <div>
                       <p style={{ fontSize: 14, fontWeight: 700 }}>{meta.label}</p>
                       <p style={{ fontSize: 11, color: '#6060a0', fontWeight: 600 }}>
-                        {new Date(tx.created_at).toLocaleDateString('ru-RU')}
+                        {new Date(tx.created_at).toLocaleDateString('uz-UZ')}
                       </p>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontSize: 15, fontWeight: 900 }}>{Number(tx.amount).toLocaleString()} ₽</p>
+                    <p style={{ fontSize: 15, fontWeight: 900 }}>{Number(tx.amount).toLocaleString()} so'm</p>
                     <p style={{ fontSize: 11, fontWeight: 700, color: STATUS_COLORS[tx.status] || '#6060a0' }}>
-                      {tx.status}
+                      {STATUS_LABELS[tx.status] || tx.status}
                     </p>
                   </div>
                 </div>
@@ -130,7 +127,6 @@ export default function Profile({ profile }: Props) {
           </div>
         )}
 
-        {/* Leaderboard */}
         {tab === 'rating' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {leaderboard.map((row, i) => {
@@ -148,7 +144,7 @@ export default function Profile({ profile }: Props) {
                   </span>
                   <p style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{row.username}</p>
                   <p style={{ fontSize: 13, fontWeight: 900, color: i < 3 ? colors[i] : '#6060a0' }}>
-                    {Number(row.total_spent).toLocaleString()} ₽
+                    {Number(row.total_spent).toLocaleString()} so'm
                   </p>
                 </div>
               )
