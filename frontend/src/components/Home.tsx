@@ -3,11 +3,11 @@
 interface HomeProps { profile: any; onDeposit: () => void; onRefresh: () => void }
 
 export default function Home({ profile, onDeposit }: HomeProps) {
-  const balance = profile ? Number(profile.balance).toLocaleString('ru-RU') : null
+  const balance = profile ? Number(profile.balance).toLocaleString('uz-UZ') : null
   const premiumDate = profile?.premium_expire
-    ? new Date(profile.premium_expire).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+    ? new Date(profile.premium_expire).toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' })
     : null
-  const name = profile?.username || 'пользователь'
+  const name = profile?.username || 'foydalanuvchi'
 
   return (
     <div style={{ padding: '16px 16px 0' }}>
@@ -23,8 +23,8 @@ export default function Home({ profile, onDeposit }: HomeProps) {
             {name[0]?.toUpperCase() || '?'}
           </div>
           <div>
-            <p style={{ fontSize: 18, fontWeight: 900, color: '#f0f0f8' }}>Привет, {name}! 👋</p>
-            <p style={{ fontSize: 12, color: '#6060a0', fontWeight: 600 }}>Ваш кошелёк</p>
+            <p style={{ fontSize: 18, fontWeight: 900, color: '#f0f0f8' }}>Salom, {name}! 👋</p>
+            <p style={{ fontSize: 12, color: '#6060a0', fontWeight: 600 }}>Sizning hamyoningiz</p>
           </div>
         </div>
       </div>
@@ -36,23 +36,22 @@ export default function Home({ profile, onDeposit }: HomeProps) {
         position: 'relative', overflow: 'hidden',
       }}>
         <div style={{
-          position: 'absolute', top: -30, right: -20,
-          width: 120, height: 120,
+          position: 'absolute', top: -30, right: -20, width: 120, height: 120,
           background: 'radial-gradient(circle, rgba(255,60,172,0.25) 0%, transparent 70%)',
           pointerEvents: 'none',
         }} />
         <p style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ff3cac', marginBottom: 4 }}>
-          💳 Баланс
+          💳 Balans
         </p>
         {balance === null ? (
           <div className="shimmer" style={{ width: 140, height: 40, borderRadius: 8, marginBottom: 16 }} />
         ) : (
           <p style={{ fontSize: 36, fontWeight: 900, color: '#fff', marginBottom: 16, letterSpacing: '-0.02em' }}>
-            {balance} <span style={{ fontSize: 20, color: '#ff3cac' }}>₽</span>
+            {balance} <span style={{ fontSize: 20, color: '#ff3cac' }}>so'm</span>
           </p>
         )}
         <button onClick={onDeposit} className="btn-primary" style={{ width: 'auto', padding: '10px 22px', fontSize: 14 }}>
-          <span style={{ fontSize: 18 }}>+</span> Пополнить
+          <span style={{ fontSize: 18 }}>+</span> To'ldirish
         </button>
       </div>
 
@@ -73,19 +72,19 @@ export default function Home({ profile, onDeposit }: HomeProps) {
         }}>
           <span className="float" style={{ display: 'block', fontSize: 28, marginBottom: 6, animationDelay: '0.5s' }}>💎</span>
           <p style={{ fontSize: 14, fontWeight: 800, color: '#a855f7', lineHeight: 1.3 }}>
-            {premiumDate ? `до ${premiumDate}` : 'Нет'}
+            {premiumDate ? `${premiumDate} gacha` : 'Yo\'q'}
           </p>
           <p style={{ fontSize: 11, fontWeight: 800, color: '#a855f7', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>Premium</p>
         </div>
       </div>
 
       <div className="afu4 card" style={{ marginBottom: 16 }}>
-        <p style={{ fontWeight: 800, marginBottom: 12, fontSize: 15 }}>🚀 Почему выбирают нас?</p>
+        <p style={{ fontWeight: 800, marginBottom: 12, fontSize: 15 }}>🚀 Nima uchun bizni tanlashadi?</p>
         {[
-          { icon: '⚡️', text: 'Мгновенное зачисление', color: '#ffe600' },
-          { icon: '🔒', text: 'Безопасный платёж', color: '#00ff87' },
-          { icon: '💳', text: 'Оплата банковской картой', color: '#00f5ff' },
-          { icon: '🛡', text: 'Поддержка 24/7', color: '#ff3cac' },
+          { icon: '⚡️', text: 'Tezkor hisobga o\'tkazish', color: '#ffe600' },
+          { icon: '🔒', text: 'Xavfsiz to\'lov', color: '#00ff87' },
+          { icon: '💳', text: 'Uzcard / Humo orqali to\'lov', color: '#00f5ff' },
+          { icon: '🛡', text: '24/7 qo\'llab-quvvatlash', color: '#ff3cac' },
         ].map(({ icon, text, color }) => (
           <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
             <div style={{
